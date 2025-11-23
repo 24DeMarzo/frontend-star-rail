@@ -18,17 +18,17 @@ function AdminPage() {
   // --- CARGA DE DATOS ---
   const fetchAllData = () => {
     // 1. Cargar Estadísticas
-    fetch('http://localhost:4000/api/dashboard-stats')
+    fetch('https://backend-star-rail-production.up.railway.app/api/dashboard-stats')
       .then(res => res.json())
       .then(data => setStats(data));
 
     // 2. Cargar Productos
-    fetch('http://localhost:4000/api/products')
+    fetch('https://backend-star-rail-production.up.railway.app/api/products')
       .then(res => res.json())
       .then(data => setProducts(data));
 
     // 3. Cargar Usuarios
-    fetch('http://localhost:4000/api/users')
+    fetch('https://backend-star-rail-production.up.railway.app/api/users')
       .then(res => res.json())
       .then(data => setUsers(data));
   };
@@ -58,10 +58,10 @@ function AdminPage() {
     event.preventDefault();
     const productData = { nombre: prodNombre, precio: prodPrecio, imagen: prodImagen };
     
-    let url = 'http://localhost:4000/api/products';
+    let url = 'https://backend-star-rail-production.up.railway.app/api/products';
     let method = 'POST';
     if (editingId) {
-      url = `http://localhost:4000/api/products/${editingId}`;
+      url = `https://backend-star-rail-production.up.railway.app/api/products/${editingId}`;
       method = 'PUT';
     }
 
@@ -80,7 +80,7 @@ function AdminPage() {
 
   const handleDeleteProduct = async (id) => {
     if (!window.confirm("¿Borrar producto?")) return;
-    await fetch(`http://localhost:4000/api/products/${id}`, { method: 'DELETE' });
+    await fetch(`https://backend-star-rail-production.up.railway.app/api/products/${id}`, { method: 'DELETE' });
     fetchAllData();
   };
 

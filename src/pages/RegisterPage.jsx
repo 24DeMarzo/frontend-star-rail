@@ -17,7 +17,7 @@ function RegisterPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:4000/api/register', {
+      const response = await fetch('https://backend-star-rail-production.up.railway.app/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

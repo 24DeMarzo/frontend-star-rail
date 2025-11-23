@@ -35,7 +35,7 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
     // --- OPCIÓN 1: WEBPAY REAL (Transbank) ---
     if (paymentMethod === 'Webpay') {
       try {
-        const response = await fetch('http://localhost:4000/api/webpay/create', {
+        const response = await fetch('https://backend-star-rail-production.up.railway.app/api/webpay/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id, total: calculateTotal(), items: cartItems })
@@ -70,7 +70,7 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
       await new Promise(resolve => setTimeout(resolve, 1500)); 
 
       try {
-        const response = await fetch('http://localhost:4000/api/webpay/simulate-success', {
+        const response = await fetch('https://backend-star-rail-production.up.railway.app/api/webpay/simulate-success', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id, total: calculateTotal(), items: cartItems })

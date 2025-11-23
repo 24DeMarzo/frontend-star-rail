@@ -7,7 +7,7 @@ function TiendaPage() {
   const { onAddToCart } = useOutletContext();
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/products')
+    fetch('https://backend-star-rail-production.up.railway.app/api/products')
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error("Error cargando productos:", err));
