@@ -1,99 +1,107 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useOutletContext } from 'react-router-dom';
-import { Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } from 'transbank-sdk';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function PerfilPage() {
-  const { currentUser } = useOutletContext();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  // Cargar historial al montar el componente
   useEffect(() => {
-    if (currentUser?.id) {
-      fetch(`http://localhost:4000/api/orders/user/${currentUser.id}`)
-        .then(res => res.json())
-        .then(data => {
-          setOrders(data);
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error("Error cargando historial:", err);
-          setLoading(false);
-        });
+    // 1. Verificar si hay usuario logueado
+    const userString = localStorage.getItem('user');
+    if (!userString) {
+      navigate('/login');
+      return;
     }
-  }, [currentUser]);
+    const userData = JSON.parse(userString);
+    setUser(userData);
 
-  if (!currentUser) return <div className="profile-container"><h1>Cargando...</h1></div>;
+    // 2. Revisar si volvemos de Webpay (status en la URL)
+    const query = new URLSearchParams(location.search);
+    const status = query.get('status');
+    
+    if (status === 'success') {
+      alert("¡Pago Exitoso! Tu compra ha sido registrada. 🚀");
+      // Limpiamos la URL para que no salga la alerta cada vez que recarga
+      navigate('/perfil', { replace: true });
+    } else if (status === 'failure') {
+      alert("El pago falló o fue anulado. 😢");
+    }
+
+    // 3. Cargar historial de compras del Backend
+    fetchOrders(userData.id);
+  }, [navigate, location]);
+
+  const fetchOrders = async (userId) => {
+    // IMPORTANTE: Aquí usamos la URL de tu variable de entorno o la que cambiaste a mano
+    // Si ya cambiaste todas las URLs a la de Railway, esto funcionará bien.
+    try {
+      // Usamos una ruta relativa si configuraste un base URL, o la absoluta si la pusiste a mano.
+      // Asumiremos que ya hiciste el "Buscar y Reemplazar" de localhost -> Railway.
+      const backendUrl = 'https://backend-star-rail-production.up.railway.app'; // <--- OJO: Asegúrate que esta sea TU URL de Railway
+      
+      const response = await fetch(`${backendUrl}/api/orders/user/${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setOrders(data);
+      }
+    } catch (error) {
+      console.error("Error cargando historial:", error);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
+  if (!user) return <div className="perfil-container">Cargando perfil...</div>;
 
   return (
-    <main className="profile-container">
-      <h1>Mi Perfil</h1>
-      
-      <div className="profile-layout">
-        
-        {/* SECCIÓN IZQUIERDA: INFO USUARIO */}
-        <section className="profile-balance">
-          <h2>Bienvenido, {currentUser.username}</h2>
-          <div className="balance-card">
-            <p>Rol de Cuenta:</p>
-            <span className="balance-amount" style={{fontSize: '1.5rem'}}>
-              {currentUser.role === 'admin' ? '👑 Administrador' : '🚀 Trazacaminos'}
-            </span>
-            <p className="balance-currency">{currentUser.email}</p>
-          </div>
-          <Link to="/tienda" className="cta-button cta-gold">Ir a la Tienda</Link>
-        </section>
-        
-        {/* SECCIÓN DERECHA: HISTORIAL REAL */}
-        <section className="profile-history">
-          <h2>Historial de Compras</h2>
-          
-          {loading ? (
-            <p>Cargando historial...</p>
-          ) : orders.length === 0 ? (
-            <div style={{textAlign: 'center', padding: '20px'}}>
-              <p>Aún no has realizado compras.</p>
-              <Link to="/tienda" style={{color: 'var(--accent-gold)'}}>¡Haz tu primera recarga!</Link>
-            </div>
-          ) : (
-            <table className="history-table">
-              <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>Detalles (Items)</th>
-                  <th>Método</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id}>
-                    {/* Formatear fecha */}
-                    <td>{new Date(order.fecha).toLocaleDateString()}</td>
-                    
-                    {/* Mostrar items (ej: "60 Esquirlas (x1)") */}
-                    <td>
-                      <ul style={{listStyle: 'none', padding: 0, margin: 0, fontSize: '0.9rem'}}>
-                        {order.items.map((item, index) => (
-                          <li key={index}>• {item.nombre} <span style={{opacity: 0.7}}>(x{item.quantity})</span></li>
-                        ))}
-                      </ul>
-                    </td>
-
-                    <td>{order.payment_method}</td>
-                    
-                    <td style={{color: 'var(--accent-gold)', fontWeight: 'bold'}}>
-                      ${order.total}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </section>
-
+    <div className="perfil-container">
+      <h1>Perfil de {user.username}</h1>
+      <div className="perfil-info">
+        <p><strong>Email:</strong> {user.email}</p>
+        <p><strong>Rol:</strong> {user.role}</p>
+        <button onClick={handleLogout} className="logout-btn-large">Cerrar Sesión</button>
       </div>
-    </main>
+
+      <div className="order-history">
+        <h2>Historial de Pedidos</h2>
+        {orders.length === 0 ? (
+          <p>No tienes pedidos aún.</p>
+        ) : (
+          <table className="orders-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Método</th>
+                <th>Total</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map(order => (
+                <tr key={order.id}>
+                  <td>#{order.id}</td>
+                  <td>{new Date(order.fecha).toLocaleDateString()}</td>
+                  <td>{order.payment_method}</td>
+                  <td>${order.total}</td>
+                  <td>
+                    <span className={`status-badge ${order.status.toLowerCase()}`}>
+                      {order.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
   );
 }
 
