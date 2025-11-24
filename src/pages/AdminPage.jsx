@@ -10,19 +10,15 @@ function AdminPage() {
   const [users, setUsers] = useState([]);
   const [messages, setMessages] = useState([]);
   
-  // Estado para el Modal de Productos
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({ nombre: '', precio: '', imagen: '' });
 
-  // DEFINICIÓN DE LA FUNCIÓN DE CARGA (FUERA DEL USEEFFECT)
   const fetchAllData = async () => {
     try {
-      // 1. Cargar Estadísticas
       const resStats = await fetch(`${API_BASE_URL}/api/dashboard-stats`);
       if(resStats.ok) setStats(await resStats.json());
 
-      // 2. Cargar Productos
       const resProd = await fetch(`${API_BASE_URL}/api/products`);
       if(resProd.ok) setProducts(await resProd.json());
 
@@ -46,11 +42,9 @@ function AdminPage() {
       navigate('/');
       return;
     }
-    // Llamamos a la función que definimos arriba
     fetchAllData();
   }, [navigate]);
 
-  // --- FUNCIONES DE PRODUCTOS ---
   const handleEditClick = (product) => {
     setEditingProduct(product);
     setFormData({ nombre: product.nombre, precio: product.precio, imagen: product.imagen });
@@ -90,7 +84,7 @@ function AdminPage() {
       setIsModalOpen(false);
       fetchAllData(); 
     } catch (error) {
-      alert("Error guardando producto");
+      console.error("Error borrando:", error);
     }
   };
 
