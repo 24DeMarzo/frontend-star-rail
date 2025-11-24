@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import '../../public/style.css'
+import '../../src/style.css';
 
 const API_BASE_URL = 'https://starraildb-production.up.railway.app'; 
 
