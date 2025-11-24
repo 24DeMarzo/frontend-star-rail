@@ -75,20 +75,24 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
         });
         
         if (response.ok) {
-          window.location.href = '/perfil?status=success';
+          setShowPaymentModal(false);
+          onCloseClick();
+          navigate('/perfil?status=success');
         } else {
           alert("Error en la simulación.");
           setIsProcessing(false);
         }
       } catch (error) {
-        alert("Error de conexión simulación, " + error);
+        alert("Error de conexión simulación.", error);
         setIsProcessing(false);
       }
       return;
     }
 
     await new Promise(resolve => setTimeout(resolve, 2000));
-    window.location.href = '/perfil?status=success';
+    setShowPaymentModal(false);
+    onCloseClick();
+    navigate('/perfil?status=success');
   };
 
   return (
