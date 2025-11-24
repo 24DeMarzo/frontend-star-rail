@@ -32,67 +32,29 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
     setIsProcessing(true);
     
     const user = JSON.parse(localStorage.getItem('user'));
-
-    if (paymentMethod === 'Webpay') {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/webpay/create`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.id, total: calculateTotal(), items: cartItems })
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-          const form = document.createElement("form");
-          form.method = "POST";
-          form.action = data.url;
-          const tokenInput = document.createElement("input");
-          tokenInput.type = "hidden";
-          tokenInput.name = "token_ws";
-          tokenInput.value = data.token;
-          form.appendChild(tokenInput);
-          document.body.appendChild(form);
-          form.submit(); 
-        } else {
-          alert("Error Webpay: " + data.message);
-          setIsProcessing(false);
-        }
-      } catch (error) {
-        alert("Error de conexión.", error);
-        setIsProcessing(false);
-      }
-      return;
-    }
-
-    if (paymentMethod === 'WebpayBypass') {
+    
+    try {
       await new Promise(resolve => setTimeout(resolve, 1500)); 
 
-      try {
-          const response = await fetch(`${API_BASE_URL}/api/webpay/simulate-success`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.id, total: calculateTotal(), items: cartItems })
-        });
-        
-        if (response.ok) {
-          setShowPaymentModal(false);
-          onCloseClick();
-          navigate('/perfil?status=success');
-        } else {
-          alert("Error en la simulación.");
-          setIsProcessing(false);
-        }
-      } catch (error) {
-        alert("Error de conexión simulación.", error);
-        setIsProcessing(false);
+      const response = await fetch(`${API_BASE_URL}/api/webpay/simulate-success`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, total: calculateTotal(), items: cartItems })
+      });
+      
+      if (response.ok) {
+        setShowPaymentModal(false);
+        onCloseClick(); 
+        navigate('/perfil?status=success'); 
+      } else {
+        alert("Error en la simulación del servidor.");
       }
-      return;
+    } catch (error) {
+      console.error(error);
+      alert("Error de conexión con el simulador.");
+    } finally {
+      setIsProcessing(false);
     }
-
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setShowPaymentModal(false);
-    onCloseClick();
-    navigate('/perfil?status=success');
   };
 
   return (
@@ -121,20 +83,22 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
             <form onSubmit={handleConfirmPayment}>
               <div className="form-group">
                 <label>Método de Pago</label>
-                <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} style={{width:'100%', padding:'10px', marginBottom:'15px'}}>
-                  <option value="WebpayBypass">🟢 Webpay (Simulación Local)</option>
-                  <option value="Webpay">🔴 Webpay Plus (Transbank Real)</option>
-                  <option value="Tarjeta">💳 Tarjeta Crédito (Simulada)</option>
+                {/* 👇 MENÚ SIMPLIFICADO: Solo opciones que funcionan */}
+                <select 
+                    value={paymentMethod} 
+                    onChange={(e) => setPaymentMethod(e.target.value)} 
+                    style={{width:'100%', padding:'10px', marginBottom:'15px'}}
+                >
+                  <option value="WebpayBypass">🟢 Webpay (Simulación)</option>
+                  <option value="Tarjeta">💳 Tarjeta Crédito</option>
                 </select>
               </div>
 
-              {paymentMethod === 'WebpayBypass' && (
-                <div style={{background:'rgba(0,255,0,0.1)', padding:'10px', borderRadius:'5px', marginBottom:'15px', border:'1px solid #ccffcc'}}>
-                  <p style={{fontSize:'0.9rem', color:'#ccffcc'}}>
-                    Modo desarrollador: Simula el flujo completo de Webpay sin conectar con Transbank.
-                  </p>
-                </div>
-              )}
+              <div style={{background:'rgba(0,255,0,0.1)', padding:'10px', borderRadius:'5px', marginBottom:'15px', border:'1px solid #ccffcc'}}>
+                <p style={{fontSize:'0.9rem', color:'#ccffcc'}}>
+                  Modo Seguro: Simulación de pago conectada a la Base de Datos.
+                </p>
+              </div>
 
               <div style={{display:'flex', gap:'10px'}}>
                 <button type="submit" className="cta-button cta-gold" disabled={isProcessing} style={{flex:1}}>
