@@ -58,7 +58,7 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
           setIsProcessing(false);
         }
       } catch (error) {
-        alert("Error de conexión.");
+        alert("Error de conexión.", error);
         setIsProcessing(false);
       }
       return;
@@ -81,7 +81,7 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
           setIsProcessing(false);
         }
       } catch (error) {
-        alert("Error de conexión simulación.");
+        alert("Error de conexión simulación, " + error);
         setIsProcessing(false);
       }
       return;
