@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import '../App.css'; // Asegúrate de que tus estilos estén aquí o en el archivo que uses
 
+// 🛑 ¡NO TOQUES ESTA URL! ES LA QUE FUNCIONA
 const API_BASE_URL = 'https://starraildb-production.up.railway.app'; 
 
 function RegisterPage() {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false); // Un detallito para que el botón cambie al cargar
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setLoading(true); // Bloqueamos botón para no enviar doble
+
+    // URL MATEMÁTICAMENTE PERFECTA
     const finalEndpoint = `${API_BASE_URL}/api/register`;
     
-    console.log("🔗 CONECTANDO A:", finalEndpoint);
-
     try {
       const response = await fetch(finalEndpoint, {
         method: 'POST',
@@ -26,26 +29,71 @@ function RegisterPage() {
       const data = await response.json();
 
       if (response.ok) {
-        alert("✅ ¡Registro Exitoso! ID: " + data.userId);
+        alert("✨ ¡Bienvenido al Expreso Astral! Registro exitoso.");
         navigate('/login');
       } else {
         alert("❌ Error: " + (data.message || "Error desconocido"));
       }
     } catch (error) {
       console.error(error);
-      alert("⚠️ Error de conexión. Revisa la consola.");
+      alert("⚠️ Error de conexión con el servidor.");
+    } finally {
+      setLoading(false); // Desbloqueamos botón
     }
   };
 
   return (
-    <div className="auth-container">
-      <h2>Registro</h2>
-      <form onSubmit={handleSubmit}>
-        <input name="username" placeholder="Usuario" onChange={handleChange} required />
-        <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
-        <input type="password" name="password" placeholder="Pass" onChange={handleChange} required />
-        <button type="submit">Registrarse</button>
-      </form>
+    <div className="auth-wrapper">
+      <div className="auth-container">
+        <h2 className="auth-title">Registro de Trazacaminos</h2>
+        <p className="auth-subtitle">Únete a la aventura estelar</p>
+        
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label>Nombre de Usuario</label>
+            <input 
+              type="text" 
+              name="username" 
+              className="form-input"
+              placeholder="Ej: Kafka" 
+              onChange={handleChange} 
+              required 
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Correo Electrónico</label>
+            <input 
+              type="email" 
+              name="email" 
+              className="form-input"
+              placeholder="ejemplo@astral.com" 
+              onChange={handleChange} 
+              required 
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Contraseña</label>
+            <input 
+              type="password" 
+              name="password" 
+              className="form-input"
+              placeholder="********" 
+              onChange={handleChange} 
+              required 
+            />
+          </div>
+
+          <button type="submit" className="auth-button" disabled={loading}>
+            {loading ? 'Procesando...' : 'Registrarse'}
+          </button>
+        </form>
+
+        <p className="auth-footer">
+          ¿Ya tienes cuenta? <Link to="/login" className="auth-link">Inicia Sesión aquí</Link>
+        </p>
+      </div>
     </div>
   );
 }
