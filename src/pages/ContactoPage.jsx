@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+// 👇 URL ARREGLADA (Solo tocamos esto)
 const API_BASE_URL = 'https://starraildb-production.up.railway.app';
 
 function ContactoPage() {
@@ -16,24 +17,29 @@ function ContactoPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    console.log("🟢 Intentando enviar mensaje...", formData);
+
     try {
+      // 👇 Aquí está el arreglo: Usamos la variable con https y la ruta correcta
       const response = await fetch(`${API_BASE_URL}/api/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
 
+      console.log("🟡 Respuesta del servidor:", response.status);
+
       if (response.ok) {
         alert("¡Mensaje enviado correctamente! ✅");
         setFormData({ nombre: '', email: '', asunto: 'Consulta General', mensaje: '' }); 
       } else {
         const errorData = await response.json();
+        console.error("🔴 Error Backend:", errorData);
         alert("Error al enviar: " + (errorData.error || "Error desconocido"));
       }
     } catch (error) {
-      console.error("Error de Conexión:", error);
-      alert("Error: No se pudo conectar con el servidor.");
+      console.error("❌ Error de Conexión:", error);
+      alert("Error: El servidor backend parece estar apagado.");
     }
   };
 
