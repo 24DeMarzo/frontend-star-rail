@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../apiConfig';
 
 function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -17,7 +18,7 @@ function RegisterPage() {
     }
 
     try {
-      const response = await fetch('https://backend-star-rail-production.up.railway.app/api/register', {
+      const response = await fetch(`${API_BASE_URL}/api/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

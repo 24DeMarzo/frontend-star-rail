@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
+import API_BASE_URL from '../apiConfig';
 
 function TiendaPage() {
   const [products, setProducts] = useState([]);
   const { onAddToCart } = useOutletContext();
 
   useEffect(() => {
-    fetch('https://backend-star-rail-production.up.railway.app/api/products')
+    fetch(`${API_BASE_URL}/api/products`)
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error("Error cargando productos:", err));

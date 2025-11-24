@@ -4,7 +4,7 @@ function ContactoPage() {
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
-    asunto: 'Consulta General', // Valor por defecto
+    asunto: 'Consulta General',
     mensaje: ''
   });
 
@@ -14,10 +14,10 @@ function ContactoPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("🟢 Intentando enviar mensaje...", formData); // CHIVATO 1
+    console.log("🟢 Intentando enviar mensaje...", formData);
 
     try {
-      const response = await fetch('https://backend-star-rail-production.up.railway.app/api/messages', {
+      const response = await fetch('https://backend-star-rail-production.up', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

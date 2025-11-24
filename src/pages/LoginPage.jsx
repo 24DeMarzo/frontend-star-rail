@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
+import API_BASE_URL from '../apiConfig';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -11,7 +12,7 @@ function LoginPage() {
     event.preventDefault();
     
     try {
-      const response = await fetch('https://backend-star-rail-production.up.railway.app/api/login', {
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

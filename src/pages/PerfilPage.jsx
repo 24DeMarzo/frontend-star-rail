@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import API_BASE_URL from '../apiConfig';
 
 function PerfilPage() {
   const navigate = useNavigate();
@@ -34,14 +35,8 @@ function PerfilPage() {
   }, [navigate, location]);
 
   const fetchOrders = async (userId) => {
-    // IMPORTANTE: Aquí usamos la URL de tu variable de entorno o la que cambiaste a mano
-    // Si ya cambiaste todas las URLs a la de Railway, esto funcionará bien.
     try {
-      // Usamos una ruta relativa si configuraste un base URL, o la absoluta si la pusiste a mano.
-      // Asumiremos que ya hiciste el "Buscar y Reemplazar" de localhost -> Railway.
-      const backendUrl = 'https://backend-star-rail-production.up.railway.app'; // <--- OJO: Asegúrate que esta sea TU URL de Railway
-      
-      const response = await fetch(`${backendUrl}/api/orders/user/${userId}`);
+      const response = await fetch(`${API_BASE_URL}/api/orders/user/${userId}`);
       if (response.ok) {
         const data = await response.json();
         setOrders(data);
