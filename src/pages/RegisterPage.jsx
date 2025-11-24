@@ -4,17 +4,15 @@ import { Link, useNavigate } from 'react-router-dom';
 const API_BASE_URL = 'https://starraildb-production.up.railway.app';
 
 function RegisterPage() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({ username: '', email: '', password: '', confirmPassword: '' });
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
-    if (password !== confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       alert("Las contraseñas no coinciden.");
       return;
     }
@@ -24,10 +22,12 @@ function RegisterPage() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, email, password }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          username: formData.username, 
+          email: formData.email, 
+          password: formData.password 
+        }),
       });
 
       const data = await response.json();
@@ -40,8 +40,8 @@ function RegisterPage() {
       }
 
     } catch (error) {
-      console.error('Error al conectar con el servidor:', error);
-      alert('⚠️ No se pudo conectar con el servidor. Revisa tu conexión.');
+      console.error(error);
+      alert('⚠️ No se pudo conectar con el servidor.');
     } finally {
       setLoading(false);
     }
@@ -49,18 +49,16 @@ function RegisterPage() {
 
   return (
     <main className="login-container">
-      <form className="login-form register-form" onSubmit={handleSubmit}>
+      <form className="login-form" onSubmit={handleSubmit}>
         <h2>Crear Cuenta</h2>
         
         <div className="form-group">
           <label htmlFor="username">Nombre de Usuario</label>
           <input 
             type="text" 
-            id="username" 
             name="username" 
             required 
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={handleChange}
             placeholder="Ej: Caelus"
           />
         </div>
@@ -69,11 +67,9 @@ function RegisterPage() {
           <label htmlFor="email">Correo Electrónico</label>
           <input 
             type="email" 
-            id="email" 
             name="email" 
             required 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={handleChange}
             placeholder="nombre@ejemplo.com"
           />
         </div>
@@ -82,24 +78,20 @@ function RegisterPage() {
           <label htmlFor="password">Contraseña</label>
           <input 
             type="password" 
-            id="password" 
             name="password" 
             required 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handleChange}
             placeholder="********"
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="password-confirm">Confirmar Contraseña</label>
+          <label htmlFor="confirmPassword">Confirmar Contraseña</label>
           <input 
             type="password" 
-            id="password-confirm" 
-            name="password-confirm" 
+            name="confirmPassword" 
             required 
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={handleChange}
             placeholder="********"
           />
         </div>
@@ -108,9 +100,9 @@ function RegisterPage() {
           {loading ? 'Procesando...' : 'Registrarse'}
         </button>
         
-        <p className="register-link">
+        <div className="register-link">
           ¿Ya tienes cuenta? <Link to="/login">Inicia Sesión aquí</Link>
-        </p>
+        </div>
       </form>
     </main>
   );

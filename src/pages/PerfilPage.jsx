@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+const API_BASE_URL = 'https://starraildb-production.up.railway.app';
+
 function PerfilPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -8,7 +10,6 @@ function PerfilPage() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    // 1. Verificar si hay usuario logueado
     const userString = localStorage.getItem('user');
     if (!userString) {
       navigate('/login');
@@ -17,14 +18,11 @@ function PerfilPage() {
     const userData = JSON.parse(userString);
     setUser(userData);
 
+    // Lógica de retorno de Webpay
     const query = new URLSearchParams(location.search);
-    const status = query.get('status');
-    
-    if (status === 'success') {
-      alert("¡Pago Exitoso! Tu compra ha sido registrada. 🚀");
+    if (query.get('status') === 'success') {
+      alert("¡Pago Exitoso! 🚀");
       navigate('/perfil', { replace: true });
-    } else if (status === 'failure') {
-      alert("El pago falló o fue anulado. 😢");
     }
 
     fetchOrders(userData.id);
@@ -32,16 +30,10 @@ function PerfilPage() {
 
   const fetchOrders = async (userId) => {
     try {
-      // 👇 AQUÍ ESTABA EL ERROR: Le faltaba el https://
-      const backendUrl = 'https://starraildb-production.up.railway.app'; 
-      
-      const response = await fetch(`${backendUrl}/api/orders/user/${userId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setOrders(data);
-      }
+      const response = await fetch(`${API_BASE_URL}/api/orders/user/${userId}`);
+      if (response.ok) setOrders(await response.json());
     } catch (error) {
-      console.error("Error cargando historial:", error);
+      console.error(error);
     }
   };
 
@@ -51,49 +43,56 @@ function PerfilPage() {
     navigate('/login');
   };
 
-  if (!user) return <div className="perfil-container">Cargando perfil...</div>;
+  if (!user) return <div className="profile-container">Cargando...</div>;
 
   return (
-    <div className="perfil-container">
-      <h1>Perfil de {user.username}</h1>
-      <div className="perfil-info">
-        <p><strong>Email:</strong> {user.email}</p>
-        <p><strong>Rol:</strong> {user.role}</p>
-        <button onClick={handleLogout} className="logout-btn-large">Cerrar Sesión</button>
-      </div>
+    <div className="profile-container">
+      <h1>Perfil de Trazacaminos</h1>
+      
+      <div className="profile layout"> {/* Clases de tu CSS */}
+        
+        {/* Columna Izquierda: Info Usuario */}
+        <div className="profile-balance">
+          <div className="balance-card">
+            <h2>{user.username}</h2>
+            <p>{user.email}</p>
+            <p>Rol: <strong>{user.role}</strong></p>
+            <hr style={{borderColor: 'var(--accent-blue)', margin: '1rem 0'}}/>
+            <button onClick={handleLogout} className="logout-btn" style={{width: '100%', padding: '10px'}}>
+                Cerrar Sesión
+            </button>
+          </div>
+        </div>
 
-      <div className="order-history">
-        <h2>Historial de Pedidos</h2>
-        {orders.length === 0 ? (
-          <p>No tienes pedidos aún.</p>
-        ) : (
-          <table className="orders-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Fecha</th>
-                <th>Método</th>
-                <th>Total</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map(order => (
-                <tr key={order.id}>
-                  <td>#{order.id}</td>
-                  <td>{new Date(order.fecha).toLocaleDateString()}</td>
-                  <td>{order.payment_method}</td>
-                  <td>${order.total}</td>
-                  <td>
-                    <span className={`status-badge ${order.status.toLowerCase()}`}>
-                      {order.status}
-                    </span>
-                  </td>
+        {/* Columna Derecha: Historial */}
+        <div className="profile-history">
+          <h2>Historial de Pedidos</h2>
+          {orders.length === 0 ? (
+            <p>Aún no has realizado recargas.</p>
+          ) : (
+            <table className="history-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Método</th>
+                  <th>Total</th>
+                  <th>Estado</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {orders.map(order => (
+                  <tr key={order.id}>
+                    <td>{new Date(order.fecha).toLocaleDateString()}</td>
+                    <td>{order.payment_method}</td>
+                    <td>${order.total}</td>
+                    <td>{order.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
       </div>
     </div>
   );
