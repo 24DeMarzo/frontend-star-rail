@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+const API_BASE_URL = 'https://starraildb-production.up.railway.app';
+
 function PerfilPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -8,7 +10,6 @@ function PerfilPage() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    // 1. Verificar si hay usuario logueado
     const userString = localStorage.getItem('user');
     if (!userString) {
       navigate('/login');
@@ -32,9 +33,7 @@ function PerfilPage() {
 
   const fetchOrders = async (userId) => {
     try {
-      const backendUrl = 'starraildb-production.up.railway.app'; // <--- OJO: Asegúrate que esta sea TU URL de Railway
-      
-      const response = await fetch(`${backendUrl}/api/orders/user/${userId}`);
+      const response = await fetch(`${API_BASE_URL}/api/orders/user/${userId}`);
       if (response.ok) {
         const data = await response.json();
         setOrders(data);

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API_BASE_URL from '../apiConfig';
+
+// 👇 URL CORRECTA (Backend Star Rail DB)
+const API_BASE_URL = 'https://starraildb-production.up.railway.app';
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -16,17 +18,19 @@ function AdminPage() {
 
   const fetchAllData = async () => {
     try {
+      // 1. Estadísticas
       const resStats = await fetch(`${API_BASE_URL}/api/dashboard-stats`);
       if(resStats.ok) setStats(await resStats.json());
 
+      // 2. Productos
       const resProd = await fetch(`${API_BASE_URL}/api/products`);
       if(resProd.ok) setProducts(await resProd.json());
 
-      // 3. Cargar Usuarios
+      // 3. Usuarios
       const resUsers = await fetch(`${API_BASE_URL}/api/users`);
       if(resUsers.ok) setUsers(await resUsers.json());
 
-      // 4. Cargar Mensajes
+      // 4. Mensajes
       const resMsgs = await fetch(`${API_BASE_URL}/api/messages`);
       if(resMsgs.ok) setMessages(await resMsgs.json());
 
@@ -60,7 +64,8 @@ function AdminPage() {
   const handleDeleteClick = async (id) => {
     if (!window.confirm("¿Seguro que quieres borrar este producto?")) return;
     try {
-      await fetch(`starraildb-production.up.railway.app/api/products/${id}`, { method: 'DELETE' });
+      // ✅ CORREGIDO: Usamos la variable API_BASE_URL aquí también
+      await fetch(`${API_BASE_URL}/api/products/${id}`, { method: 'DELETE' });
       fetchAllData(); 
     } catch (error) {
       console.error("Error borrando:", error);
@@ -84,7 +89,8 @@ function AdminPage() {
       setIsModalOpen(false);
       fetchAllData(); 
     } catch (error) {
-      console.error("Error borrando:", error);
+      console.error("Error guardando:", error);
+      alert("Error al guardar el producto");
     }
   };
 

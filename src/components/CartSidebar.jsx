@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API_BASE_URL from '../apiConfig';
+
+const API_BASE_URL = 'https://starraildb-production.up.railway.app';
 
 function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
   const navigate = useNavigate();
   const cartClassName = `cart-sidebar ${isOpen ? 'open' : ''}`;
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  // Por defecto usamos la simulación para que no falles en la demo
   const [paymentMethod, setPaymentMethod] = useState('WebpayBypass'); 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -33,7 +33,6 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
     
     const user = JSON.parse(localStorage.getItem('user'));
 
-    // --- OPCIÓN 1: WEBPAY REAL (Transbank) ---
     if (paymentMethod === 'Webpay') {
       try {
         const response = await fetch(`${API_BASE_URL}/api/webpay/create`, {
@@ -65,9 +64,7 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
       return;
     }
 
-    // --- OPCIÓN 2: WEBPAY SIMULADO (EL SALVAVIDAS) ---
     if (paymentMethod === 'WebpayBypass') {
-      // Simulamos una pequeña carga para que se vea real
       await new Promise(resolve => setTimeout(resolve, 1500)); 
 
       try {
@@ -78,7 +75,6 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
         });
         
         if (response.ok) {
-          // Redirigimos al perfil con mensaje de éxito (igual que haría Transbank)
           window.location.href = '/perfil?status=success';
         } else {
           alert("Error en la simulación.");
@@ -91,11 +87,7 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
       return;
     }
 
-    // --- OPCIÓN 3: TARJETA CRÉDITO FALSA ---
-    // (Lógica antigua simple)
     await new Promise(resolve => setTimeout(resolve, 2000));
-    // ... aquí podrías poner lógica para tarjeta simple si quieres, 
-    // pero con el Bypass ya tienes cubierto lo de "Webpay"
     window.location.href = '/perfil?status=success';
   };
 
@@ -126,7 +118,6 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
               <div className="form-group">
                 <label>Método de Pago</label>
                 <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} style={{width:'100%', padding:'10px', marginBottom:'15px'}}>
-                  {/* ESTA ES LA OPCIÓN QUE USARÁS AHORA */}
                   <option value="WebpayBypass">🟢 Webpay (Simulación Local)</option>
                   <option value="Webpay">🔴 Webpay Plus (Transbank Real)</option>
                   <option value="Tarjeta">💳 Tarjeta Crédito (Simulada)</option>
@@ -136,7 +127,7 @@ function CartSidebar({ isOpen, onCloseClick, cartItems, onRemoveItem }) {
               {paymentMethod === 'WebpayBypass' && (
                 <div style={{background:'rgba(0,255,0,0.1)', padding:'10px', borderRadius:'5px', marginBottom:'15px', border:'1px solid #ccffcc'}}>
                   <p style={{fontSize:'0.9rem', color:'#ccffcc'}}>
-                    Modo desarrollador: Simula el flujo completo de Webpay sin conectar con Transbank (Útil si el servidor de pruebas está caído).
+                    Modo desarrollador: Simula el flujo completo de Webpay sin conectar con Transbank.
                   </p>
                 </div>
               )}

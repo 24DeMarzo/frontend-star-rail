@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
-import API_BASE_URL from '../apiConfig';
+
+const API_BASE_URL = 'https://starraildb-production.up.railway.app';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { onLogin } = useOutletContext();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
     
     try {
       const response = await fetch(`${API_BASE_URL}/api/login`, {
@@ -23,15 +26,19 @@ function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        onLogin(data);
+        onLogin(data); 
+        
+        // Redirección
         navigate('/perfil');
       } else {
-        alert(data.message);
+        alert("❌ Error: " + (data.message || "Credenciales incorrectas"));
       }
 
     } catch (error) {
       console.error('Error al conectar con el servidor:', error);
-      alert('No se pudo conectar con el servidor. Intenta más tarde.');
+      alert('⚠️ No se pudo conectar con el servidor. Revisa tu conexión.');
+    } finally {
+      setLoading(false); // Desbloqueamos botón
     }
   };
 
@@ -49,6 +56,7 @@ function LoginPage() {
             required 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            placeholder="nombre@ejemplo.com"
           />
         </div>
         
@@ -61,11 +69,12 @@ function LoginPage() {
             required 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="********"
           />
         </div>
         
-        <button type="submit" className="cta-button cta-gold login-button">
-          Entrar
+        <button type="submit" className="cta-button cta-gold login-button" disabled={loading}>
+          {loading ? 'Entrando...' : 'Entrar'}
         </button>
         
         <p className="register-link">
