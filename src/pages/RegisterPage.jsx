@@ -1,108 +1,52 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import API_BASE_URL from '../apiConfig';
+import { useNavigate } from 'react-router-dom';
+
+const API_BASE_URL = 'https://starraildb-production.up.railway.app'; 
 
 function RegisterPage() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const navigate = useNavigate();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     
-    if (password !== confirmPassword) {
-      alert("Las contraseñas no coinciden.");
-      return;
-    }
+    const finalEndpoint = `${API_BASE_URL}/api/register`;
+    
+    console.log("🔗 CONECTANDO A:", finalEndpoint);
 
     try {
-      const response = await fetch(`starraildb-production.up.railway.app/api/register`, {
+      const response = await fetch(finalEndpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, email, password }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
+        alert("✅ ¡Registro Exitoso! ID: " + data.userId);
         navigate('/login');
       } else {
-        alert(data.message);
+        alert("❌ Error: " + (data.message || "Error desconocido"));
       }
-
     } catch (error) {
-      console.error('Error al conectar con el servidor:', error);
-      alert('No se pudo conectar con el servidor. Intenta más tarde.');
+      console.error(error);
+      alert("⚠️ Error de conexión. Revisa la consola.");
     }
   };
 
   return (
-    <main className="login-container">
-      <form className="login-form register-form" onSubmit={handleSubmit}>
-        <h2>Crear Cuenta</h2>
-        
-        <div className="form-group">
-          <label htmlFor="username">Nombre de Usuario</label>
-          <input 
-            type="text" 
-            id="username" 
-            name="username" 
-            required 
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="email">Correo Electrónico</label>
-          <input 
-            type="email" 
-            id="email" 
-            name="email" 
-            required 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="password">Contraseña</label>
-          <input 
-            type="password" 
-            id="password" 
-            name="password" 
-            required 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="password-confirm">Confirmar Contraseña</label>
-          <input 
-            type="password" 
-            id="password-confirm" 
-            name="password-confirm" 
-            required 
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </div>
-        
-        <button type="submit" className="cta-button cta-gold login-button">
-          Registrarse
-        </button>
-        
-        <p className="register-link">
-          ¿Ya tienes cuenta? <Link to="/login">Inicia Sesión aquí</Link>
-        </p>
+    <div className="auth-container">
+      <h2>Registro</h2>
+      <form onSubmit={handleSubmit}>
+        <input name="username" placeholder="Usuario" onChange={handleChange} required />
+        <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
+        <input type="password" name="password" placeholder="Pass" onChange={handleChange} required />
+        <button type="submit">Registrarse</button>
       </form>
-    </main>
+    </div>
   );
 }
 
