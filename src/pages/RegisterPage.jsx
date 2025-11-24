@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import '../App.css'; // Asegúrate de que tus estilos estén aquí o en el archivo que uses
+import '../../public/style.css'
 
-// 🛑 ¡NO TOQUES ESTA URL! ES LA QUE FUNCIONA
 const API_BASE_URL = 'https://starraildb-production.up.railway.app'; 
 
 function RegisterPage() {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false); // Un detallito para que el botón cambie al cargar
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Bloqueamos botón para no enviar doble
+    setLoading(true);
 
-    // URL MATEMÁTICAMENTE PERFECTA
     const finalEndpoint = `${API_BASE_URL}/api/register`;
     
     try {
@@ -38,7 +36,7 @@ function RegisterPage() {
       console.error(error);
       alert("⚠️ Error de conexión con el servidor.");
     } finally {
-      setLoading(false); // Desbloqueamos botón
+      setLoading(false);
     }
   };
 
