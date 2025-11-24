@@ -14,7 +14,7 @@ function RegisterPage() {
     console.log("Enviando datos a la nube...", formData);
 
     try {
-      const response = await fetch('https://backend-star-rail-production.up.railway.app/api/register', {
+      const response = await fetch('starraildb-production.up.railway.app/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -60,7 +60,7 @@ function AdminPage() {
   const handleDeleteClick = async (id) => {
     if (!window.confirm("¿Seguro que quieres borrar este producto?")) return;
     try {
-      await fetch(`${API_BASE_URL}/api/products/${id}`, { method: 'DELETE' });
+      await fetch(`starraildb-production.up.railway.app/api/products/${id}`, { method: 'DELETE' });
       fetchAllData(); 
     } catch (error) {
       console.error("Error borrando:", error);

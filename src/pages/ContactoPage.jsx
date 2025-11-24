@@ -17,7 +17,7 @@ function ContactoPage() {
     console.log("🟢 Intentando enviar mensaje...", formData);
 
     try {
-      const response = await fetch('https://backend-star-rail-production.up', {
+      const response = await fetch('starraildb-production.up.railway.app', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import API_BASE_URL from '../apiConfig';
 
 function PerfilPage() {
   const navigate = useNavigate();
@@ -18,25 +17,24 @@ function PerfilPage() {
     const userData = JSON.parse(userString);
     setUser(userData);
 
-    // 2. Revisar si volvemos de Webpay (status en la URL)
     const query = new URLSearchParams(location.search);
     const status = query.get('status');
     
     if (status === 'success') {
       alert("¡Pago Exitoso! Tu compra ha sido registrada. 🚀");
-      // Limpiamos la URL para que no salga la alerta cada vez que recarga
       navigate('/perfil', { replace: true });
     } else if (status === 'failure') {
       alert("El pago falló o fue anulado. 😢");
     }
 
-    // 3. Cargar historial de compras del Backend
     fetchOrders(userData.id);
   }, [navigate, location]);
 
   const fetchOrders = async (userId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/orders/user/${userId}`);
+      const backendUrl = 'starraildb-production.up.railway.app'; // <--- OJO: Asegúrate que esta sea TU URL de Railway
+      
+      const response = await fetch(`${backendUrl}/api/orders/user/${userId}`);
       if (response.ok) {
         const data = await response.json();
         setOrders(data);
